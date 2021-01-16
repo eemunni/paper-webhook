@@ -1,0 +1,13 @@
+{
+  "name": "paper-webhook",
+  "version": "1.0.0",
+  "description": "Get PaperMC updates to Discord using webhook",
+  "main": "index.js",
+  "repository": "https://github.com/eemunni/",
+  "author": "eemunni <58708787+eemunni@users.noreply.github.com>",
+  "license": "MIT",
+  "dependencies": {
+    "bent": "^7.3.12",
+    "discord.js": "^12.5.1"
+  }
+}
