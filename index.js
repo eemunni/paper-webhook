@@ -8,8 +8,8 @@ let config = {
     "version": "latest",
     // In minutes
     "interval": "15",
-    "id": "",
-    "token": "",
+    "id": "799316742127747133",
+    "token": "J_6USZQu66G1bhJPrUbuQ4ZcIabZwwDftd48nqmJXMyBZ-BQVhUxvzdNGg7MJCJZ5niz",
     "username": "PaperMC Updates",
     "avatar": "https://paper.readthedocs.io/en/latest/_images/papermc_logomark_500.png"
 };
@@ -17,6 +17,13 @@ let config = {
 const webhook = new Discord.WebhookClient(config.id, config.token);
 
 const init = async () => {
+    // Check if buildNum.txt exists, if not create new one and write 0 to it.
+    try {
+        fs.accessSync("buildNum.txt", fs.constants.F_OK);
+    } catch (err) {
+        console.log("buildNum.txt doesn't exist. Creating a new one...");
+        fs.writeFileSync("buildNum.txt", "0", "utf-8");
+    }
     async function getLatestBuild() {
         try {
             // Not the best way but it works haha
@@ -27,7 +34,8 @@ const init = async () => {
 
             // Get latest build number from PaperMC API
             let builds = await bent(`https://papermc.io/api/v2/projects/paper/versions/${config.version}/`, "GET", "json", 200)();
-            let data = await bent(`https://papermc.io/api/v2/projects/paper/versions/${config.version}/builds/${Math.max(...builds.builds)}/`, "GET", "json", 200)();
+            let latestBuild = Math.max(...builds.builds)
+            let data = await bent(`https://papermc.io/api/v2/projects/paper/versions/${config.version}/builds/${latestBuild}/`, "GET", "json", 200)();
             
             // This is NOT the best way to do it but it works so ¯\_(ツ)_/¯
             if (data.changes.length === 0) {
@@ -44,18 +52,17 @@ const init = async () => {
                 .addFields(
                     { name: "Version:", value: `${data.version}` },
                     { name: "Build:", value: `${data.build}` },
-                    { name: "Changes:", value: summary }
+                    { name: "Changes:", value: summary },
+                    { name: "Download:", value: `[Link](https://papermc.io/api/v2/projects/paper/versions/${config.version}/builds/${latestBuild}/downloads/paper-${config.version}-${latestBuild}.jar)`}
                 )
                 .setTimestamp()
                 .setFooter("Powered by papermc.io API")
 
-            // Store current build number so we don't send same build twice.
+            // Get buildNum.txt number. If it's lower than latest write latest to file and send webhook about new update.
             let current = parseInt(fs.readFileSync("buildNum.txt", "utf-8"));
-            let num = Math.max(...builds.builds)
-
-            if (num > current) {
+            if (latestBuild > current) {
                 // Write latest build number to file
-                fs.writeFileSync("buildNum.txt", num.toString(), "utf-8");
+                fs.writeFileSync("buildNum.txt", latestBuild.toString(), "utf-8");
                 // Send webhook
                 webhook.send("", {
                     username: config.username,
