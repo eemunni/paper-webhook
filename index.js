@@ -1,18 +1,7 @@
 const Discord = require("discord.js");
+const config = require("./config.js");
 const bent = require("bent");
 const fs = require("fs");
-
-// Webhook config
-let config = {
-    // latest or specified version
-    "version": "latest",
-    // In minutes
-    "interval": "15",
-    "id": "",
-    "token": "",
-    "username": "PaperMC Updates",
-    "avatar": "https://paper.readthedocs.io/en/latest/_images/papermc_logomark_500.png"
-};
 
 const webhook = new Discord.WebhookClient(config.id, config.token);
 
