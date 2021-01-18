@@ -8,8 +8,8 @@ let config = {
     "version": "latest",
     // In minutes
     "interval": "15",
-    "id": "799316742127747133",
-    "token": "J_6USZQu66G1bhJPrUbuQ4ZcIabZwwDftd48nqmJXMyBZ-BQVhUxvzdNGg7MJCJZ5niz",
+    "id": "",
+    "token": "",
     "username": "PaperMC Updates",
     "avatar": "https://paper.readthedocs.io/en/latest/_images/papermc_logomark_500.png"
 };
