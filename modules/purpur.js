@@ -14,7 +14,7 @@ module.exports = async () => {
             if (building === true) {
                 return null;
         } else {
-            let summary = changeSet.items[0].msg
+            let summary = changeSet.items.map((v,i) => `${i+1}. ${v.msg} `).join("\n");
             fs.writeFileSync("purpurBuildNum.txt", latestBuild.toString(), "utf-8");
             return {
                 latestBuild, summary, result,
