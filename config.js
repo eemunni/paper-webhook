@@ -1,15 +1,18 @@
 require("dotenv").config();
+
 const config = {
-    // Latest or specified version
-    "version": "latest",
+    // Which server software updates you want to receive
+    "paper": true,
+    "purpur": true,
+    // Time between checks if new build is available.
     // In minutes
     "interval": "15",
     // Webhook id and token
     "id": process.env.webhook_id,
     "token": process.env.webhook_token,
-    // Webhook username and avatar
-    "username": "PaperMC Updates",
-    "avatar": "https://paper.readthedocs.io/en/latest/_images/papermc_logomark_500.png"
+    // Webhook's username and avatar
+    "username": "Server Software Updates",
+    "avatar": ""
 };
 
 module.exports = config;

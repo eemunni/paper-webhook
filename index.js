@@ -1,72 +1,65 @@
-const Discord = require("discord.js");
+const { WebhookClient, MessageEmbed } = require("discord.js");
+const getPurpur = require("./modules/purpur.js");
+const getPaper = require("./modules/paper.js");
 const config = require("./config.js");
-const bent = require("bent");
-const fs = require("fs");
 
-const webhook = new Discord.WebhookClient(config.id, config.token);
+// Initialize new webhook
+const webhook = new WebhookClient(config.id, config.token);
 
 const init = async () => {
-    // Check if buildNum.txt exists, if not create new one and write 0 to it.
-    try {
-        fs.accessSync("buildNum.txt", fs.constants.F_OK);
-    } catch (err) {
-        console.log("buildNum.txt doesn't exist. Creating a new one...");
-        fs.writeFileSync("buildNum.txt", "0", "utf-8");
-    }
-    async function getLatestBuild() {
-        try {
-            // Not the best way but it works haha
-            if (config.version == "latest") {
-                let latest = await bent("https://papermc.io/api/v2/projects/paper/", "GET", "json", 200)();
-                config.version = latest.versions[latest.versions.length-1]
-            };
-
-            // Get latest build number from PaperMC API
-            let builds = await bent(`https://papermc.io/api/v2/projects/paper/versions/${config.version}/`, "GET", "json", 200)();
-            let latestBuild = Math.max(...builds.builds)
-            let data = await bent(`https://papermc.io/api/v2/projects/paper/versions/${config.version}/builds/${latestBuild}/`, "GET", "json", 200)();
-            
-            // This is NOT the best way to do it but it works so ¯\_(ツ)_/¯
-            if (data.changes.length === 0) {
-                summary = "No changes"
-            } else {
-                summary = data.changes[0].summary
-            };
-
-            // Construct embed for new updates
-            const embed = new Discord.MessageEmbed()
-                .setTitle("New Paper build!")
-                .setColor("#444444")
-                .setThumbnail(config.avatar)
-                .addFields(
-                    { name: "Version:", value: `${data.version}` },
-                    { name: "Build:", value: `${data.build}` },
-                    { name: "Changes:", value: summary },
-                    { name: "Download:", value: `[Link](https://papermc.io/api/v2/projects/paper/versions/${config.version}/builds/${latestBuild}/downloads/paper-${config.version}-${latestBuild}.jar)`}
-                )
-                .setTimestamp()
-                .setFooter("Powered by papermc.io API")
-
-            // Get buildNum.txt number. If it's lower than latest write latest to file and send webhook about new update.
-            let current = parseInt(fs.readFileSync("buildNum.txt", "utf-8"));
-            if (latestBuild > current) {
-                // Write latest build number to file
-                fs.writeFileSync("buildNum.txt", latestBuild.toString(), "utf-8");
-                // Send webhook
+    // Paper new build checker
+    async function getLatestPaperBuild() {
+        if (config.paper === true) {
+            let paper = await getPaper();
+            if (paper != null) {
+                let paperEmbed = new MessageEmbed()
+                    .setTitle("New Paper build!")
+                    .setColor("#444444")
+                    .setThumbnail("https://paper.readthedocs.io/en/latest/_images/papermc_logomark_500.png")
+                    .addFields(
+                        { name: "Version:", value: paper.version },
+                        { name: "Build:", value: paper.build },
+                        { name: "Changes:", value: paper.summary },
+                        { name: "Download:", value: `[Link](${paper.link})` }
+                    )
+                    .setTimestamp()
+                    .setFooter("Powered by papermc.io API")
                 webhook.send("", {
                     username: config.username,
                     avatarURL: config.avatar,
-                    embeds: [embed],
+                    embeds: [paperEmbed]
                 });
-            };
-        // This shouldn't error but if paper API happens to be down we don't want that the webhook goes down :D
-        } catch(err) {
-            console.error("Error occured:\n" + err);
-        };
-    };
-    // Fetch latest build as soon as webhook is initialized and after that every x minutes.
-    getLatestBuild();
-    setInterval(getLatestBuild, 1000*60*config.interval);
+            } 
+        }
+    } getLatestPaperBuild();
+    setInterval(getLatestPaperBuild, 1000*60*config.interval);
+
+    // Purpur new build checker
+    async function getLatestPurpurBuild() {
+        if (config.purpur === true) {
+            let purpur = await getPurpur();
+            if (purpur != null) {
+                let purpurEmbed = new MessageEmbed()
+                    .setTitle("New Purpur build!")
+                    .setColor("#444444")
+                    .setThumbnail("https://purpur.pl3x.net/images/purpur-small.png")
+                    .addFields(
+                        { name: "Build result:", value: purpur.result.toLowerCase() },
+                        { name: "Build:", value: purpur.latestBuild },
+                        { name: "Changes:", value: purpur.summary },
+                        { name: "Download:", value: `[Link](${purpur.link})` }
+                    )
+                    .setTimestamp()
+                    .setFooter("Powered by Purpur CI API")
+                webhook.send("", {
+                    username: config.username,
+                    avatarURL: config.avatar,
+                    embeds: [purpurEmbed]
+                });
+            }
+        }    
+    } getLatestPurpurBuild();
+    setInterval(getLatestPurpurBuild, 1000*60*config.interval);
 };
 // Init the whole loop da loop
 init();

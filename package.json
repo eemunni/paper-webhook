@@ -1,7 +1,7 @@
 {
-  "name": "paper-webhook",
-  "version": "1.0.0",
-  "description": "Get PaperMC updates to Discord using webhook",
+  "name": "server-software-webhook",
+  "version": "1.1.0",
+  "description": "Get server software fork updates to Discord with webhooks",
   "main": "index.js",
   "repository": "https://github.com/eemunni/paper-webhook",
   "author": "eemunni <58708787+eemunni@users.noreply.github.com>",
