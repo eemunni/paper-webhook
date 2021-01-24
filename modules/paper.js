@@ -13,7 +13,7 @@ module.exports = async () => {
         let current = parseInt(fs.readFileSync("paperBuildNum.txt", "utf-8"));
 
         if (latest > current) {
-            let { version, build, changes } = await bent(`https://papermc.io/api/v2/projects/paper/versions/${latestVer}/builds/437/`, "GET", "json", 200)();
+            let { version, build, changes } = await bent(`https://papermc.io/api/v2/projects/paper/versions/${latestVer}/builds/${latest}/`, "GET", "json", 200)();
             let summary = changes.length ? changes.map((v,i) => `${i+1}. ${v.summary} `).join("\n") : "No changes";
             fs.writeFileSync("paperBuildNum.txt", latest.toString(), "utf-8");
             return {
